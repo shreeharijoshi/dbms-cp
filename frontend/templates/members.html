@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17211f">
+  <title>Members | Ironcore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/members.css') }}">
+  <script src="{{ url_for('static', path='/js/members.js') }}" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="#members" aria-label="Ironcore home">
+        <span class="brand-mark" aria-hidden="true">I</span>
+        <span class="brand-name">ironcore<span>MANAGEMENT</span></span>
+      </a>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="nav-list">
+        <a class="nav-item" href="#overview"><span class="nav-icon">▦</span>Overview</a>
+        <a class="nav-item active" href="#members" aria-current="page"><span class="nav-icon">♙</span>Members</a>
+        <a class="nav-item" href="{{ url_for('memberships_page') }}"><span class="nav-icon">▣</span>Memberships</a>
+        <a class="nav-item" href="{{ url_for('membership_plans_page') }}"><span class="nav-icon">◇</span>Plans</a>
+      </nav>
+      <div class="sidebar-bottom">
+        <div class="help-card"><span class="help-icon">?</span><strong>Need a hand?</strong><p>Visit the help center for guidance.</p><a href="mailto:support@ironcore.example">Get support <span aria-hidden="true">↗</span></a></div>
+        <div class="profile"><div class="avatar">AD</div><div><strong>Admin Desk</strong><span>Administrator</span></div><button class="icon-button" aria-label="Profile options">•••</button></div>
+      </div>
+    </aside>
+
+    <main class="main-content" id="members">
+      <header class="topbar">
+        <div class="breadcrumbs"><span>Workspace</span><span class="crumb-sep">/</span><strong>Members</strong></div>
+        <div class="top-actions"><span class="today" id="today-label"></span><button class="icon-button notification" aria-label="Notifications">♧<i></i></button><div class="top-avatar">AD</div></div>
+      </header>
+
+      <section class="page-heading">
+        <div><p class="eyebrow">PEOPLE &amp; ACCESS</p><h1>Members</h1><p class="page-subtitle">Manage your member directory and keep profiles up to date.</p></div>
+        <button class="button button-primary" id="add-member-button"><span aria-hidden="true">＋</span> Add member</button>
+      </section>
+
+      <section class="metrics" aria-label="Member summary">
+        <article class="metric-card"><div class="metric-heading"><span>Total members</span><span class="metric-icon icon-violet">♙</span></div><strong id="total-count">—</strong><small>Across your directory</small></article>
+        <article class="metric-card"><div class="metric-heading"><span>Active members</span><span class="metric-icon icon-green">✓</span></div><strong id="active-count">—</strong><small>Currently active</small></article>
+        <article class="metric-card"><div class="metric-heading"><span>Personal training</span><span class="metric-icon icon-amber">↗</span></div><strong id="pt-count">—</strong><small>With PT enabled</small></article>
+        <article class="metric-card metric-note"><span class="note-dot"></span><div><strong>Member directory</strong><p>Profile information is securely managed in one place.</p></div><span class="note-arrow">↗</span></article>
+      </section>
+
+      <section class="directory-card">
+        <div class="directory-header"><div><h2>All members</h2><p>View and manage every member in your gym.</p></div><button class="button button-outline" id="refresh-button"><span aria-hidden="true">↻</span> Refresh</button></div>
+        <div class="toolbar">
+          <label class="search-box"><span aria-hidden="true">⌕</span><input id="search-input" type="search" placeholder="Search by name or member ID" autocomplete="off"><kbd>⌘ K</kbd></label>
+          <div class="filter-group"><label class="sr-only" for="status-filter">Filter by status</label><select id="status-filter"><option value="all">All statuses</option><option value="Active">Active</option><option value="Inactive">Inactive</option></select><button class="button button-filter" id="clear-filters">Clear filters</button></div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>MEMBER</th><th>MEMBER ID</th><th>CONTACT</th><th>GENDER</th><th>PT</th><th>STATUS</th><th><span class="sr-only">Actions</span></th></tr></thead>
+            <tbody id="members-body"><tr><td colspan="7" class="table-message"><span class="spinner"></span> Loading members…</td></tr></tbody>
+          </table>
+        </div>
+        <footer class="table-footer"><span id="results-label">Loading directory</span><div class="pagination"><button class="page-button" disabled aria-label="Previous page">‹</button><span class="page-current">1</span><button class="page-button" disabled aria-label="Next page">›</button></div></footer>
+      </section>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+
+  <dialog class="member-dialog" id="member-dialog">
+    <form id="member-form" method="dialog">
+      <div class="dialog-heading"><div><p class="eyebrow" id="dialog-eyebrow">MEMBER PROFILE</p><h2 id="dialog-title">Add member</h2></div><button class="icon-button close-dialog" type="button" aria-label="Close">×</button></div>
+      <p class="dialog-copy" id="dialog-copy">Add a profile to your member directory.</p>
+      <div class="form-grid">
+        <label class="field" id="member-id-wrap">Member ID<input name="member_id" maxlength="20" required placeholder="e.g. MEM-1042"><small>Use a unique identifier, up to 20 characters.</small></label>
+        <label class="field">Full name<input name="member_name" maxlength="100" required placeholder="Member name"></label>
+        <label class="field">Gender<input name="gender" maxlength="10" required placeholder="e.g. Female"></label>
+        <label class="field">Date of birth<input name="dob" type="date" required></label>
+        <label class="field">Height (cm)<input name="height" type="number" min="0.01" step="0.01" required placeholder="168"></label>
+        <label class="field">Weight (kg)<input name="weight" type="number" min="0.01" step="0.01" required placeholder="64"></label>
+        <label class="field">Contact number<input name="contact" maxlength="15" required placeholder="Phone number"></label>
+        <label class="field">Personal training<select name="PT"><option value="No">No</option><option value="Yes">Yes</option></select></label>
+      </div>
+      <p class="form-error" id="form-error" role="alert"></p>
+      <div class="dialog-actions"><button class="button button-outline cancel-dialog" type="button">Cancel</button><button class="button button-primary" id="save-member" type="submit">Save member</button></div>
+    </form>
+  </dialog>
+</body>
+</html>
