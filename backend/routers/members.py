@@ -1,7 +1,12 @@
-from schemas.members import MemberCreate, MemberUpdate
+import logging
 from fastapi import APIRouter, HTTPException
+from fastapi import Depends
 from sqlalchemy import text
 from database.connection import engine
+from dependencies.auth import require_roles
+from schemas.members import MemberCreate, MemberUpdate
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/members",
@@ -23,10 +28,11 @@ def get_all_members():
 
             return [dict(member) for member in members]
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in members endpoint.")
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail="Internal server error."
         )
 
 
@@ -58,14 +64,15 @@ def get_member(member_id: str):
     except HTTPException:
         raise
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in members endpoint.")
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail="Internal server error."
         )
 
 # POST: Add a new member
-@router.post("/")
+@router.post("/", dependencies=[Depends(require_roles("Management"))])
 def add_member(member: MemberCreate):
 
     try:
@@ -113,14 +120,15 @@ def add_member(member: MemberCreate):
                 "member": dict(new_member)
             }
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in members endpoint.")
         raise HTTPException(
             status_code=400,
-            detail=str(e)
+            detail="Request could not be completed."
         )
 
 # PATCH: Update member details
-@router.patch("/{member_id}")
+@router.patch("/{member_id}", dependencies=[Depends(require_roles("Management"))])
 def update_member(member_id: str, member: MemberUpdate):
 
     update_data = member.model_dump(exclude_unset=True)
@@ -200,14 +208,18 @@ def update_member(member_id: str, member: MemberUpdate):
     except HTTPException:
         raise
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in members endpoint.")
         raise HTTPException(
             status_code=400,
-            detail=str(e)
+            detail="Request could not be completed."
         )
 
 # PATCH: Deactivate a member
-@router.patch("/{member_id}/deactivate")
+@router.patch(
+    "/{member_id}/deactivate",
+    dependencies=[Depends(require_roles("Management"))]
+)
 def deactivate_member(member_id: str):
 
     try:
@@ -253,8 +265,9 @@ def deactivate_member(member_id: str):
     except HTTPException:
         raise
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in members endpoint.")
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail="Internal server error."
         )

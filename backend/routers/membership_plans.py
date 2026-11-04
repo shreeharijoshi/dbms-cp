@@ -1,9 +1,13 @@
-from fastapi import APIRouter, HTTPException
+import logging
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy import text
 
 from database.connection import engine
+from dependencies.auth import require_roles
 from schemas.membership_plans import MembershipPlanCreate, MembershipPlanUpdate
 
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(
     prefix="/membership-plans",
@@ -25,10 +29,11 @@ def get_all_membership_plans():
 
             return [dict(plan) for plan in plans]
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in membership_plans endpoint.")
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail="Internal server error."
         )
 
 
@@ -60,15 +65,16 @@ def get_membership_plan(plan_id: str):
     except HTTPException:
         raise
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in membership_plans endpoint.")
         raise HTTPException(
             status_code=500,
-            detail=str(e)
+            detail="Internal server error."
         )
 
 
 # POST: Add a new membership plan
-@router.post("/")
+@router.post("/", dependencies=[Depends(require_roles("Management"))])
 def add_membership_plan(plan: MembershipPlanCreate):
 
     try:
@@ -109,15 +115,16 @@ def add_membership_plan(plan: MembershipPlanCreate):
                 "membership_plan": dict(new_plan)
             }
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in membership_plans endpoint.")
         raise HTTPException(
             status_code=400,
-            detail=str(e)
+            detail="Request could not be completed."
         )
 
 
 # PATCH: Update membership plan details
-@router.patch("/{plan_id}")
+@router.patch("/{plan_id}", dependencies=[Depends(require_roles("Management"))])
 def update_membership_plan(plan_id: str, plan: MembershipPlanUpdate):
 
     update_data = plan.model_dump(exclude_unset=True)
@@ -194,8 +201,9 @@ def update_membership_plan(plan_id: str, plan: MembershipPlanUpdate):
     except HTTPException:
         raise
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Unexpected error in membership_plans endpoint.")
         raise HTTPException(
             status_code=400,
-            detail=str(e)
+            detail="Request could not be completed."
         )

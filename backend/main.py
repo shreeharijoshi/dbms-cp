@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 from fastapi import FastAPI, Request
@@ -5,7 +6,9 @@ from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import text
 from database.connection import engine
-from routers import members, membership_plans, memberships
+from routers import auth, employees, expenses, inventory, members, membership_plans, memberships, payments, trainers
+
+logger = logging.getLogger(__name__)
 
 FRONTEND_DIR = Path(__file__).resolve().parent.parent / "frontend"
 templates = Jinja2Templates(directory=str(FRONTEND_DIR / "templates"))
@@ -25,6 +28,12 @@ app.mount(
 app.include_router(members.router)
 app.include_router(membership_plans.router)
 app.include_router(memberships.router)
+app.include_router(trainers.router)
+app.include_router(inventory.router)
+app.include_router(employees.router)
+app.include_router(expenses.router)
+app.include_router(payments.router)
+app.include_router(auth.router)
 
 
 @app.get("/", name="home_page")
@@ -63,9 +72,9 @@ def health_check():
             "database": "Connected"
         }
 
-    except Exception as e:
+    except Exception:
+        logger.exception("Database health check failed.")
         return {
             "status": "Unhealthy",
-            "database": "Disconnected",
-            "error": str(e)
+            "database": "Disconnected"
         }
