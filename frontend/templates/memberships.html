@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#17211f">
+  <title>Memberships | Ironcore</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/members.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', path='/css/memberships.css') }}">
+  <script src="{{ url_for('static', path='/js/memberships.js') }}" defer></script>
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Main navigation">
+      <a class="brand" href="{{ url_for('home_page') }}" aria-label="Ironcore home"><span class="brand-mark" aria-hidden="true">I</span><span class="brand-name">ironcore<span>MANAGEMENT</span></span></a>
+      <div class="nav-label">WORKSPACE</div>
+      <nav class="nav-list">
+        <a class="nav-item" href="#overview"><span class="nav-icon">▦</span>Overview</a>
+        <a class="nav-item" href="{{ url_for('members_page') }}"><span class="nav-icon">♙</span>Members</a>
+        <a class="nav-item active" href="{{ url_for('memberships_page') }}" aria-current="page"><span class="nav-icon">▣</span>Memberships</a>
+        <a class="nav-item" href="{{ url_for('membership_plans_page') }}"><span class="nav-icon">◇</span>Plans</a>
+      </nav>
+      <div class="sidebar-bottom"><div class="help-card"><span class="help-icon">?</span><strong>Need a hand?</strong><p>Visit the help center for guidance.</p><a href="mailto:support@ironcore.example">Get support <span aria-hidden="true">↗</span></a></div><div class="profile"><div class="avatar">AD</div><div><strong>Admin Desk</strong><span>Administrator</span></div><button class="icon-button" aria-label="Profile options">•••</button></div></div>
+    </aside>
+
+    <main class="main-content" id="memberships-page">
+      <header class="topbar"><div class="breadcrumbs"><span>Workspace</span><span class="crumb-sep">/</span><strong>Memberships</strong></div><div class="top-actions"><span class="today" id="today-label"></span><button class="icon-button notification" aria-label="Notifications">♧<i></i></button><div class="top-avatar">AD</div></div></header>
+      <section class="page-heading"><div><p class="eyebrow">MEMBER SERVICES</p><h1>Memberships</h1><p class="page-subtitle">Register a plan for an active member and record their payment.</p></div></section>
+
+      <section class="membership-intro">
+        <div class="intro-mark" aria-hidden="true">▣</div>
+        <div><strong>New membership registration</strong><p>Choose a member, select a plan and enter the start date. The plan price and end date are calculated for you.</p></div>
+        <span class="intro-step">NEW REGISTRATION</span>
+      </section>
+
+      <section class="registration-layout">
+        <form class="registration-card" id="membership-form" novalidate>
+          <div class="registration-heading"><div><span class="section-index">01</span><div><h2>Membership details</h2><p>Select the member and plan for this registration.</p></div></div></div>
+          <div class="registration-fields">
+            <label class="field">Member<select name="member_id" id="member-select" required><option value="">Loading active members…</option></select><small>Only active member profiles can register.</small></label>
+            <label class="field">Membership plan<select name="plan_id" id="plan-select" required><option value="">Loading plans…</option></select><small id="plan-help">Choose a plan to review its duration and price.</small></label>
+            <label class="field">Start date<input name="start_date" id="start-date" type="date" required><small>Membership end date is calculated from the selected plan.</small></label>
+          </div>
+
+          <div class="section-divider"></div>
+          <div class="registration-heading payment-heading"><div><span class="section-index">02</span><div><h2>Payment</h2><p>Choose how the member will pay for this plan.</p></div></div></div>
+          <label class="field payment-field">Payment method<select name="payment_mode" required><option value="UPI">UPI</option><option value="Card">Card</option><option value="Cash">Cash</option><option value="Bank Transfer">Bank Transfer</option></select></label>
+          <p class="form-error" id="form-error" role="alert"></p>
+          <div class="registration-actions"><span class="secure-note"><span aria-hidden="true">✓</span> Membership and payment are recorded together</span><button class="button button-primary" id="register-button" type="submit">Register membership <span aria-hidden="true">→</span></button></div>
+        </form>
+
+        <aside class="summary-column">
+          <section class="summary-card"><div class="summary-title"><span class="summary-icon">▤</span><div><h2>Registration summary</h2><p>Review before confirming.</p></div></div><div class="summary-plan-empty" id="summary-empty"><span class="summary-empty-icon">◇</span><strong>No plan selected</strong><p>Select a membership plan to see the price and term.</p></div><div class="summary-details" id="summary-details" hidden><div class="summary-plan-name" id="summary-plan-name"></div><div class="summary-row"><span>Duration</span><strong id="summary-duration">—</strong></div><div class="summary-row"><span>Start date</span><strong id="summary-start">—</strong></div><div class="summary-row"><span>End date</span><strong id="summary-end">—</strong></div><div class="summary-total"><span>Amount due</span><strong id="summary-price">—</strong></div></div></section>
+          <section class="info-card"><span class="info-icon">i</span><div><strong>Good to know</strong><p>Active memberships cannot overlap. A member with a current membership will need to wait until it expires before registering again.</p></div></section>
+          <section class="result-card" id="result-card" hidden aria-live="polite"><div class="result-icon">✓</div><div><p class="eyebrow">REGISTRATION COMPLETE</p><h2>Membership registered</h2><p id="result-copy"></p><dl><div><dt>Membership ID</dt><dd id="result-membership-id"></dd></div><div><dt>Payment ID</dt><dd id="result-payment-id"></dd></div><div><dt>Payment method</dt><dd id="result-payment-mode"></dd></div></dl><button class="button button-outline" type="button" id="new-registration">Start another registration</button></div></section>
+        </aside>
+      </section>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    </main>
+  </div>
+</body>
+</html>
